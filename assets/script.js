@@ -1,29 +1,52 @@
 // shows current date on the html
 $("#currentDay").text(moment().format("dddd, MMMM Do YYYY"));
 
-// create and edit text box
-var tasks = {};
+var storageCheck = function () {
+  var timeBlocks = {
+    8: "",
+    9: "",
+    10: "",
+    11: "",
+    12: "",
+    13: "",
+    14: "",
+    15: "",
+    16: "",
+    17: "",
+  };
 
-var createTask = function(taskText, taskDate, taskList) {
-  // create elements that make up a task item
-  var taskLi = $("<li>").addClass("events");
-  var taskSpan = $("<span>")
-    .addClass("badge badge-primary badge-pill")
-    .text(taskDate);
-  var taskP = $("<p>")
-    .addClass("m-1")
-    .text(taskText);
-
+  if (localStorage.getItem("tasks") === null) {
+    localStorage.setItem("tasks", JSON.stringify(timeBlocks));
+  }
 };
 
-$(".events").on("click", function() {
-    var text = $(this).text();
-  
-    var textInput = $("<textarea>")
-      .addClass("form-control")
-      .val(text);
-  
-    $(this).replaceWith(textInput);
-    textInput.trigger("focus");
-    console.log(this)
-  });
+var displayStored = function () {
+  var tasks = JSON.parse(localStorage.getItem("tasks"));
+  console.log(tasks);
+  for (let i = 8; i < 18; i++) {
+    $("#" + i + "t").val(tasks[i]);
+    var currentTime = parseInt(moment().format("H"));
+    if (currentTime < i) {
+      $("#" + i + "t").addClass("future");
+    } else if (currentTime === i) {
+      $("#" + i + "t").addClass("present");
+    } else if (currentTime > i) {
+      $("#" + i + "t").addClass("past");
+    }
+  }
+};
+
+storageCheck();
+displayStored();
+$(".save-btn").on("click", function () {
+  var time = $(this).data("time");
+  var text = $("#" + time + "t").val();
+  console.log(text);
+  // read from localStorage and parse
+
+  var tasks = JSON.parse(localStorage.getItem("tasks"));
+  tasks[time] = text;
+  // change the value of what the text to a variable
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+  // write object back to localStorage similar to line 30
+});
